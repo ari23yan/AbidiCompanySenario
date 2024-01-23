@@ -9,6 +9,7 @@ namespace AbidiCompanySenario.Data.Context
            : base(options) { }
 
         public DbSet<Personnel> Personnels { get; set; }
+        public DbSet<AcademicDegree> AcademicDegrees { get; set; }
 
     }
 }

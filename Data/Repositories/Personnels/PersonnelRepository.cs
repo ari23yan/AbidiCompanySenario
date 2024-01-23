@@ -16,6 +16,7 @@ namespace AbidiCompanySenario.Data.Repositories.Personnels
 
         public Task<bool> CheckPersonnelExistWithPersonnelCode(long personnelCode)
         {
+
             return _context.Personnels.AnyAsync(x => x.Personnel_Code.Equals(personnelCode));
         }
 
@@ -27,6 +28,14 @@ namespace AbidiCompanySenario.Data.Repositories.Personnels
         public Task<Personnel?> GetPersonneByNationalCodeAsync(string nationalCode)
         {
             return _context.Personnels.FirstOrDefaultAsync(x => x.National_Code.Equals(nationalCode));
+        }
+
+        public async Task<List<Personnel>> GetPersonnelsListEagerLoadAsync()
+        {
+            return await _context.Personnels
+                    .Include(x => x.AcademicDegrees)
+                    .Where(x => !x.IsDeleted)
+                    .ToListAsync();
         }
     }
 }

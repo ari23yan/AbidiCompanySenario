@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AbidiCompanySenario.Models.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace AbidiCompanySenario.ViewModels.Personnels
 {
@@ -20,6 +21,8 @@ namespace AbidiCompanySenario.ViewModels.Personnels
 
         public long National_Code { get; set; }
         public DateTime CreateDate { get; set; } 
-        public bool IsDeleted { get; set; } 
+        public bool IsDeleted { get; set; }
+        public List<AcademicDegree> AcademicDegrees { get; set; }
+
     }
 }

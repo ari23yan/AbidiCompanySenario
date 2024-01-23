@@ -13,5 +13,9 @@ namespace AbidiCompanySenario.ViewModels.Personnels
         public long Personnel_Code { get; set; }
         [Required]
         public string National_Code { get; set; }
+
+        public List<IFormFile>? AcademicDegrees { get; set; }
+
+
     }
 }

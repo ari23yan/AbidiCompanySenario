@@ -1,6 +1,8 @@
 
 using AbidiCompanySenario.Data.Context;
+using AbidiCompanySenario.Data.Interfaces;
 using AbidiCompanySenario.Data.Interfaces.Personnels;
+using AbidiCompanySenario.Data.Repositories;
 using AbidiCompanySenario.Data.Repositories.Personnels;
 using AspNetCoreHero.ToastNotification;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +28,8 @@ builder.Services.AddNotyf(config =>
 });
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddScoped<IPersonnelRepository, PersonnelRepository>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
 
 
 var app = builder.Build();

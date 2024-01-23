@@ -22,5 +22,9 @@ namespace AbidiCompanySenario.Models.Entities
         public string National_Code { get; set; }
         public DateTime CreateDate { get; set; } = DateTime.Now;
         public bool IsDeleted { get; set; } = false;
+   
+
+        public List<AcademicDegree> AcademicDegrees { get; set; }
+
     }
 }

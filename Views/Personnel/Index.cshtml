@@ -1,4 +1,5 @@
-﻿<div class="container">
+﻿@model List<AbidiCompanySenario.ViewModels.Personnels.PersonnelViewModel>
+<div class="container">
     <div class="table-wrapper">
         <div class="table-title">
             <div class="row">
@@ -17,64 +18,32 @@
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>National Code</th>
+                    <th>Academic Degrees</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Thomas Hardy</td>
-                    <td>thomashardy@mail.com</td>
-                    <td>89 Chiaroscuro Rd, Portland, USA</td>
-                    <td>(171) 555-2222</td>
-                    <td>
-                        <a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                        <a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
-                    </td>
-                </tr>
-                <tr>
-       
-                    <td>Dominique Perrier</td>
-                    <td>dominiqueperrier@mail.com</td>
-                    <td>Obere Str. 57, Berlin, Germany</td>
-                    <td>(313) 555-5735</td>
-                    <td>
-                        <a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                        <a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
-                    </td>
-                </tr>
-                <tr>
-        
-                    <td>Maria Anders</td>
-                    <td>mariaanders@mail.com</td>
-                    <td>25, rue Lauriston, Paris, France</td>
-                    <td>(503) 555-9931</td>
-                    <td>
-                        <a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                        <a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
-                    </td>
-                </tr>
-                <tr>
-       
-                    <td>Fran Wilson</td>
-                    <td>franwilson@mail.com</td>
-                    <td>C/ Araquil, 67, Madrid, Spain</td>
-                    <td>(204) 619-5731</td>
-                    <td>
-                        <a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                        <a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
-                    </td>
-                </tr>
-                <tr>
-       
-                    <td>Martin Blank</td>
-                    <td>martinblank@mail.com</td>
-                    <td>Via Monte Bianco 34, Turin, Italy</td>
-                    <td>(480) 631-2097</td>
-                    <td>
-                        <a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                        <a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
-                    </td>
-                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Personnel_Code</td>
+                        <td>@item.First_Name</td>
+                        <td>@item.Last_Name</td>
+                        <td>@item.National_Code</td>
+                        <td>
+                            @foreach (var degree in item.AcademicDegrees)
+                            {
+                                <a href="~/Files/AcademicDegrees/@degree.FileName" target="_blank"  download>
+                                    <i data-toggle="tooltip" title="@degree.FileName">📝</i>
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            <a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
+                            <a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
         <div class="clearfix">
@@ -105,23 +74,23 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Name:</label>
-                            <input type="text" class="form-control" id="nameInput" required>
+                            <input type="text" name="First_Name" class="form-control" id="nameInput" required>
                         </div>
                         <div class="form-group">
                             <label>Last Name:</label>
-                            <input type="text" class="form-control" id="lastNameInput" required>
+                            <input type="text" name="Last_Name" class="form-control" id="lastNameInput" required>
                         </div>
                         <div class="form-group">
                             <label>Personnel Code:</label>
-                            <input type="text" class="form-control" id="personnelCodeInput" minlength="4" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" required>
+                            <input type="text" name="Personnel_Code" class="form-control" id="personnelCodeInput" minlength="4" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" required>
                         </div>
                         <div class="form-group">
                             <label>NationalCode : </label>
-                            <input type="number" class="form-control" id="nationalCodeInput" required>
+                            <input type="text" name="National_Code" maxlength="10" class="form-control" id="nationalCodeInput" required>
                         </div>
                         <div class="form-group">
                             <label>Academic Degrees</label>
-                            <input type="file" id="input-file-now" multiple class="file-upload" />
+                            <input type="file" id="input-file-now" name="AcademicDegrees" multiple class="file-upload" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" />
                         </div>
                     </div>
                 </div>
@@ -191,6 +160,7 @@
         </div>
     </div>
 </div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 
 <script>
 
@@ -220,6 +190,9 @@
         return true;
     }
 
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
 
 
 
@@ -228,28 +201,5 @@
 
 
 
-    //$(document).ready(function () {
-    //    // Activate tooltip
-    //    $('[data-toggle="tooltip"]').tooltip();
-
-    //    // Select/Deselect checkboxes
-    //    var checkbox = $('table tbody input[type="checkbox"]');
-    //    $("#selectAll").click(function () {
-    //        if (this.checked) {
-    //            checkbox.each(function () {
-    //                this.checked = true;
-    //            });
-    //        } else {
-    //            checkbox.each(function () {
-    //                this.checked = false;
-    //            });
-    //        }
-    //    });
-    //    checkbox.click(function () {
-    //        if (!this.checked) {
-    //            $("#selectAll").prop("checked", false);
-    //        }
-    //    });
-    //});
 
 </script>
