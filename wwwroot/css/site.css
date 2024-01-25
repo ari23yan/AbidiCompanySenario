@@ -147,7 +147,7 @@ table.table .avatar {
         font-size: 13px;
         min-width: 30px;
         min-height: 30px;
-        color: #999;
+        color: #0d6efd;
         margin: 0 2px;
         line-height: 30px;
         border-radius: 2px !important;
@@ -163,9 +163,9 @@ table.table .avatar {
         background: #03A9F4;
     }
 
-        .pagination li.active a:hover {
-            background: #0397d6;
-        }
+.pagination li.active a:hover {
+    background: #0397d6;
+}
 
     .pagination li.disabled i {
         color: #ccc;
@@ -224,6 +224,13 @@ table.table .avatar {
         transform: rotateZ(45deg);
     }
 
+.degrees {
+    border-bottom: 1px solid;
+    border-spacing: 10px;
+    border-bottom-style: dotted;
+    padding-bottom: 13px;
+}
+
     .custom-checkbox input[type="checkbox"]:checked + label:before {
         border-color: #03A9F4;
         background: #03A9F4;
@@ -241,7 +248,7 @@ table.table .avatar {
     }
 /* Modal styles */
 .modal .modal-dialog {
-    max-width: 400px;
+    max-width: max-content;
 }
 
 .modal .modal-header, .modal .modal-body, .modal .modal-footer {

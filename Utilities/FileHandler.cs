@@ -1,8 +1,11 @@
-﻿namespace ChristianBeauty.Utilities
+﻿using AbidiCompanySenario.ViewModels.Personnels;
+using System.Text;
+
+namespace ChristianBeauty.Utilities
 {
     public static class FileHandler
     {
-        public static async Task<string?> ImageUploadAsync(IFormFile formFile, IWebHostEnvironment webHostEnvironment)
+        public static async Task<string?> FileUploadAsync(IFormFile formFile, IWebHostEnvironment webHostEnvironment)
         {
             if (formFile.Length > 0)
             {
@@ -29,7 +32,7 @@
             return null;
         }
 
-        public static void DeleteImage(string imageName, IWebHostEnvironment webHostEnvironment)
+        public static void DeleteFile(string imageName, IWebHostEnvironment webHostEnvironment)
         {
             var filePath = Path.Combine(
                 webHostEnvironment.WebRootPath,
@@ -52,6 +55,10 @@
         }
 
 
+   
+
+
+
         private static string GetUniqueFileName(string fileName)
         {
             string name = Path.GetFileNameWithoutExtension(fileName);
@@ -59,5 +66,8 @@
             string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
             return $"{name}_{timestamp}{extension}";
         }
+
+
+     
     }
 }

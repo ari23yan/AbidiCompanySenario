@@ -9,7 +9,7 @@ namespace AbidiCompanySenario.ViewModels.Personnels
         [Required]
 
         [MaxLength(64)]
-        public string First_Name { get; set; }
+        public string First_Name { get; set; }  
         [Required]
 
         [MaxLength(64)]
@@ -19,7 +19,7 @@ namespace AbidiCompanySenario.ViewModels.Personnels
         public long Personnel_Code { get; set; }
         [Required]
 
-        public long National_Code { get; set; }
+        public string National_Code { get; set; }
         public DateTime CreateDate { get; set; } 
         public bool IsDeleted { get; set; }
         public List<AcademicDegree> AcademicDegrees { get; set; }

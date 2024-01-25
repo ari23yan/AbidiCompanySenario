@@ -6,8 +6,10 @@ using AbidiCompanySenario.Data.Repositories;
 using AbidiCompanySenario.Data.Repositories.Personnels;
 using AspNetCoreHero.ToastNotification;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // or LicenseContext.Commercial
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();

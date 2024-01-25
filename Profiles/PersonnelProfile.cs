@@ -15,6 +15,17 @@ namespace AbidiCompanySenario.Profiles
 
             CreateMap<PersonnelViewModel, Personnel>()
                .ReverseMap();
+
+
+
+
+            CreateMap<EditPersonnelViewModel, Personnel>()
+                    .ForMember(dest => dest.AcademicDegrees, opt => opt.Ignore())
+                .ReverseMap();
+       
+
+
+
         }
     }
 }

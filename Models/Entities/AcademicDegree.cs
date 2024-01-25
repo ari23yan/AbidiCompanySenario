@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace AbidiCompanySenario.Models.Entities
 {
@@ -15,6 +16,8 @@ namespace AbidiCompanySenario.Models.Entities
         public string FileType { get; set; }
         public DateTime CreateDate { get; set; } = DateTime.Now;
         public bool IsDeleted { get; set; } = false;
+
+        [JsonIgnore]
         public Personnel Personnel { get; set; }
     }
 }

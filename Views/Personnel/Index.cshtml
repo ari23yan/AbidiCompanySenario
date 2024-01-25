@@ -1,4 +1,4 @@
-﻿@model List<AbidiCompanySenario.ViewModels.Personnels.PersonnelViewModel>
+﻿@model AbidiCompanySenario.ViewModels.Personnels.PaginatedPersonnelListViewModel
 <div class="container">
     <div class="table-wrapper">
         <div class="table-title">
@@ -7,7 +7,9 @@
                     <h2>Manage <b>Personnels</b></h2>
                 </div>
                 <div class="col-sm-6">
-                    <a data-bs-toggle="modal" data-bs-target="#addEmployeeModal" class="btn btn-success" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Personnel</span></a>
+                    <a data-bs-toggle="modal" data-bs-target="#addPersonnelModal" class="btn btn-info" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Personnel</span></a>
+                    <a asp-action="ExportToExcel" asp-controller="Personnel" class="btn btn-success"><i class="material-icons">💾</i> <span>Excel Export</span></a>
+                    <a asp-action="ExportToPdf" asp-controller="Personnel" class="btn btn-danger"><i class="material-icons">💾</i> <span>Pdf Export </span></a>
                 </div>
             </div>
         </div>
@@ -18,51 +20,74 @@
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>National Code</th>
+                    <th>Created Date</th>
                     <th>Academic Degrees</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.Personnels)
                 {
                     <tr>
                         <td>@item.Personnel_Code</td>
                         <td>@item.First_Name</td>
                         <td>@item.Last_Name</td>
                         <td>@item.National_Code</td>
+                        <td>@item.CreateDate.ToString("g")</td>
                         <td>
                             @foreach (var degree in item.AcademicDegrees)
                             {
-                                <a href="~/Files/AcademicDegrees/@degree.FileName" target="_blank"  download>
-                                    <i data-toggle="tooltip" title="@degree.FileName">📝</i>
+                                <a class="previewIcon" download target="_blank" href="~/Files/AcademicDegrees/@degree.FileName">
+                                    <i data-toggle="tooltip" title="@degree.FileName">📄</i>
                                 </a>
                             }
                         </td>
                         <td>
-                            <a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-                            <a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+                            <a onclick="updatePersonnel(@item.Personnel_Id)" href="#" class="edit"><i class="material-icons" style="    color: #435d7d !important;" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
+                            <a onclick="confirmDelete(@item.Personnel_Id)" href="#" class="delete"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
         <div class="clearfix">
-            <div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
+            <div class="hint-text">Showing <b>5</b> out of <b>@Model.Metadata.TotalCount</b> entries</div>
             <ul class="pagination">
-                <li class="page-item disabled"><a href="#">Previous</a></li>
-                <li class="page-item"><a href="#" class="page-link">1</a></li>
-                <li class="page-item"><a href="#" class="page-link">2</a></li>
-                <li class="page-item active"><a href="#" class="page-link">3</a></li>
-                <li class="page-item"><a href="#" class="page-link">4</a></li>
-                <li class="page-item"><a href="#" class="page-link">5</a></li>
-                <li class="page-item"><a href="#" class="page-link">Next</a></li>
+                @if (Model.Metadata.HasPreviousPage)
+                {
+                    <li class="page-item"><a href="?pageNum=@(Model.Metadata.CurrentPage - 1)">Previous</a></li>
+                }
+                else
+                {
+                    <li class="page-item disabled"><a >Previous</a></li>
+                }
+
+
+                @for (int i = Model.Metadata.CurrentPage - 5; i <= Model.Metadata.CurrentPage + 5; i++)
+                {
+                    if (i >= 1 && i <= Model.Metadata.TotalPages)
+                    {
+                        <li class="page-item @(i == Model.Metadata.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="?pageNum=@i">@i</a>
+                        </li>
+                    }
+                }
+
+                @if (Model.Metadata.HasNextPage)
+                {
+                    <li class="page-item"><a href="?pageNum=@(Model.Metadata.CurrentPage + 1)">Next</a></li>
+                }
+                else
+                {
+                    <li class="page-item disabled"><a >Next</a></li>
+                }
             </ul>
         </div>
     </div>
 </div>
 <!-- Add Modal HTML -->
 
-<div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="addPersonnelModal" tabindex="-1" aria-labelledby="addPersonnelModal" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -86,11 +111,11 @@
                         </div>
                         <div class="form-group">
                             <label>NationalCode : </label>
-                            <input type="text" name="National_Code" maxlength="10" class="form-control" id="nationalCodeInput" required>
+                            <input type="text" name="National_Code" maxlength="10" class="form-control" id="nationalCodeInput" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" required>
                         </div>
-                        <div class="form-group">
-                            <label>Academic Degrees</label>
-                            <input type="file" id="input-file-now" name="AcademicDegrees" multiple class="file-upload" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" />
+                        <div class="form-group mt-2">
+                            <label>Academic Degrees : </label>
+                            <input type="file" accept=".txt, .pdf"  id="inputfile-Val" name="AcademicDegrees" multiple class="file-upload" />
                         </div>
                     </div>
                 </div>
@@ -103,66 +128,236 @@
     </div>
 </div>
 
-
 <!-- Edit Modal HTML -->
-<div id="editEmployeeModal" class="modal fade">
+<div class="modal fade" id="editPersonnelModal" tabindex="-1" aria-labelledby="modaleditPersonnelModal" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form>
-                <div class="modal-header">
-                    <h4 class="modal-title">Edit Employee</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                </div>
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modaleditPersonnelModal">Edit Personnel Modal </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Personnel" asp-action="Edit" id="editPersonForm" enctype="multipart/form-data" method="post">
                 <div class="modal-body">
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input id="nameInput" type="text" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Address</label>
-                        <textarea class="form-control" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input type="text" class="form-control" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-                    <input type="submit" class="btn btn-info" value="Save">
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- Delete Modal HTML -->
-<div id="deleteEmployeeModal" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form>
-                <div class="modal-header">
-                    <h4 class="modal-title">Delete Employee</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete these Records?</p>
-                    <p class="text-warning"><small>This action cannot be undone.</small></p>
-                </div>
-                <div class="modal-footer">
-                    <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-                    <input type="submit" class="btn btn-danger" value="Delete">
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" name="First_Name" class="form-control" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name:</label>
+                            <input type="text" name="Last_Name" class="form-control" id="lastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Personnel Code:</label>
+                            <input type="text" disabled class="form-control" id="personnelCode" minlength="4" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" required>
+                        </div>
+                        <div class="form-group">
+                            <label>NationalCode : </label>
+                            <input type="text" name="National_Code" disabled maxlength="10" class="form-control" id="nationalCode" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)" required>
+                        </div>
+                        <input type="hidden" name="Personnel_Id"  class="form-control" id="PersonnelId" >
+                        <div class="form-group mt-2 degrees">
+                            <label>Upload Academic Degrees : </label>
+                            <input type="file" id="inputfile" accept=".txt, .pdf" onchange="validateFiles()" name="AcademicDegrees" multiple class="file-upload" />
+                        </div>
+                        <div class="form-group mt-2" id="degreesFiles">
+                            <label id="degreesFiles">Existing Academic Degrees : </label>
 
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="reset" id="reset" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal HTML -->
+<div class="modal fade" id="deletePersonnelModal" tabindex="-1" aria-labelledby="deletePersonnelModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Personnel Modal </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Personnel" asp-route-id="" asp-action="Delete"  method="post">
+                <div class="modal-body">
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete these Records?</p>
+                        <p class="text-warning"><small>This action cannot be undone.</small></p>
+                        <input type="hidden" name="personnelId" class="form-control" id="personne_IdNum">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-warning">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script>
+
+ 
+
+
+    function updatePersonnel(personnelId)
+    {
+        fetch(`https://localhost:7230/Personnel/Edit?personnelId=${personnelId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data)
+               document.getElementById("name").value = data.first_Name;
+               document.getElementById("lastName").value = data.last_Name;
+               document.getElementById("personnelCode").value = data.personnel_Code;
+               document.getElementById("PersonnelId").value = data.personnel_Id;
+               document.getElementById("nationalCode").value = data.national_Code;
+                $('#degreesFiles').nextAll().remove();
+
+                var str = '';
+                for (var i = 0; i < data.academicDegrees.length; i++) 
+                {
+                    str += '<div id="degree-' + data.academicDegrees[i].id+'"><i style="font-size:40px" data-toggle="tooltip" title = "ss" >📄</i>'
+                    +
+                        '<a  onclick="deleteDegree(' + data.academicDegrees[i].id + ')" href="#" style="cursor: pointer;" asp-action="DeleteAcademicDegree" >'
+                    +
+                    '<i class="material-icons" style="color:#F44336;" data-toggle="tooltip" title="" data-bs-original-title="Delete"></i></a>'
+                    +
+                    '<p>' + data.academicDegrees[i].fileName + '</p></div>';
+                      //<a class="previewIcon" download target = "_blank" href = "~/Files/AcademicDegrees/degree.FileName" >
+                      //  <i data - toggle="tooltip" title = "degree.FileName" >📄</i>
+                      //      </a>
+                }
+                $('#degreesFiles').after(str);
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            });
+        $('#editPersonnelModal').modal('show');
+    }
+
+
+    function confirmDelete(personnelId) {
+        $('#personne_IdNum').val(personnelId)
+        $('#deletePersonnelModal').modal('show');
+    }
+    
+    function deleteDegree(id) {
+        fetch(`https://localhost:7230/Personnel/DeleteAcademicDegree?id=${id}`, {
+            method: 'POST',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                $('#degree-'+id).remove();
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            })
+            .finally(() => {
+                $('#deletePersonnelModal').modal('hide');
+            });
+    }
+
+    function deletePersonnel() {
+        const personnelId = $('#deletePersonnelModal').data('personnelId');
+        fetch(`https://localhost:7230/Personnel/Delete?personnelId=${personnelId}`, {
+            method: 'POST',
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Deletion successful:', data);
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+            })
+            .finally(() => {
+                $('#deletePersonnelModal').modal('hide');
+            });
+    }
+
+    function validateFiles() {
+        var input = document.getElementById("inputfile-Val");
+        var files = input.files;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+
+            var ext = file.name.split('.').pop().toLowerCase();
+            if (ext !== "txt" && ext !== "pdf") {
+                alert("Invalid file type - " + file.name);
+                return false;
+            }
+
+            if (file.size > 500 * 1024) {
+                alert(file.name + " is too big - files must be under 500KB");
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+
+    function validateUpdateFiles() {
+        var input = document.getElementById("inputfile");
+        var files = input.files;
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var ext = file.name.split('.').pop().toLowerCase();
+            if (ext !== "txt" && ext !== "pdf") {
+                alert("Invalid file type - " + file.name);
+                return false;
+            }
+            if (file.size > 500 * 1024) {
+                alert(file.name + " is too big - files must be under 500KB");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    const updateForm = document.getElementById('editPersonForm');
+
+    updateForm.addEventListener('submit', (event) => {
+        if (!validateUpdateForm()) {
+            event.preventDefault();
+        }
+    }); 
+
+
+    function validateUpdateForm() {
+        var agrrementFiles = validateUpdateFiles()
+        var name = document.getElementById("name").value;
+        var lastName = document.getElementById("lastName").value;
+        if (!name || !lastName ) {
+            alert("Please fill out all fields");
+            return false;
+        }
+        if (!agrrementFiles) {
+            return false;
+        }
+        return true;
+    }
 
     const form = document.getElementById('addPersonForm');
 
@@ -171,35 +366,40 @@
             event.preventDefault();
         }
     });
+
     function validateForm() {
+      var agrrementFiles = validateFiles()
         var name = document.getElementById("nameInput").value;
         var lastName = document.getElementById("lastNameInput").value;
         var personnelCode = document.getElementById("personnelCodeInput").value;
         var nationalCode = document.getElementById("nationalCodeInput").value;
-
         if (!name || !lastName || !personnelCode || !nationalCode) {
             alert("Please fill out all fields");
             return false;
         }
-
+        if (nationalCode.length < 10) {
+            alert("nationalCode Code Must Be 10 Numbers");
+            return false;
+        }
         if (personnelCode.length < 4) {
             alert("Personnel Code Must Be More Than 3 Numbers");
             return false;
         }
-
+        if (!agrrementFiles)
+        {
+            return false;
+        }
         return true;
     }
+
+
+
 
     $(document).ready(function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
-
-
-
-
-
-
-
-
+    $("#reset").click(function () {
+        document.location.reload(true);
+    });
 
 </script>

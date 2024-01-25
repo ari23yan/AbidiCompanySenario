@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AbidiCompanySenario.ViewModels.Personnels;
+using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AbidiCompanySenario.Utilities
@@ -33,6 +35,51 @@ namespace AbidiCompanySenario.Utilities
                     .Select(x => Convert.ToInt32(input.Substring(x, 1)) * (10 - x))
                     .Sum() % 11;
             return (sum < 2 && check == sum) || (sum >= 2 && check + sum == 11);
+        }
+
+        public static string GetHtmlContent(List<PersonnelViewModel> personnelViewModel)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append("<html><body><table class='table table-striped table-hover'>");
+            sb.Append("<thead><tr>");
+            sb.Append("<th>Personnel Code</th>");
+            sb.Append("<th>First Name</th>");
+            sb.Append("<th>Last Name</th>");
+            sb.Append("<th>National Code</th>");
+            sb.Append("<th>Created Date</th>");
+            sb.Append("</tr></thead>");
+
+            sb.Append("<tbody>");
+            foreach (var personnel in personnelViewModel)
+            {
+                sb.Append("<tr>");
+                sb.Append("<td>").Append(personnel.Personnel_Code).Append("</td>");
+                sb.Append("<td>").Append(personnel.First_Name).Append("</td>");
+                sb.Append("<td>").Append(personnel.Last_Name).Append("</td>");
+                sb.Append("<td>").Append(personnel.National_Code).Append("</td>");
+                sb.Append("<td>").Append(personnel.CreateDate).Append("</td>");
+                sb.Append("</tr>");
+            }
+            sb.Append("</tbody>");
+            sb.Append("</table></body></html>");
+            return sb.ToString();
+        }
+
+        public static bool CheckFileType(string file)
+        {
+            string fileExtension = Path.GetExtension(file);
+            if (fileExtension.Equals(".pdf", StringComparison.OrdinalIgnoreCase) ||
+                fileExtension.Equals(".txt", StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine("File type is valid.");
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Invalid file type. Accepted file types are PDF and TXT.");
+                return false;
+            }
         }
     }
 }
