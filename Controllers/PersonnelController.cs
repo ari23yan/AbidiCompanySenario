@@ -12,9 +12,10 @@ using AbidiCompanySenario.ViewModels.Common;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.IO;
 using OfficeOpenXml;
-using DinkToPdf;
-using PaperKind = DinkToPdf.PaperKind;
-using Orientation = DinkToPdf.Orientation;
+using System.Reflection.Metadata;
+using System.Xml;
+using IronPdf;
+
 
 namespace AbidiCompanySenario.Controllers
 {
@@ -259,7 +260,6 @@ namespace AbidiCompanySenario.Controllers
             }
         }
 
-
         [HttpGet]
         public async Task<IActionResult> ExportToPdf()
         {
@@ -267,17 +267,10 @@ namespace AbidiCompanySenario.Controllers
             {
                 var personnels = await _Repository.GetPersonnelsListAsync();
                 var personnelViewModel = _mapper.Map<List<PersonnelViewModel>>(personnels);
-                var converter = new BasicConverter(new PdfTools());
+                IronPdf.License.LicenseKey = "IRONSUITE.ARIYAN137923.YAHOO.COM.15552-918E3B7A36-G4R3SVMDU6COG6-T6IZMKFZDCDK-IMMMF42S5AQ6-D3QJPWCE4GYL-5GW4DXW4ZLK4-TC6UXVGTCFUN-UANOGP-TKJFJQH46WGLUA-DEPLOYMENT.TRIAL-LYFR2M.TRIAL.EXPIRES.25.FEB.2024";
+                var pdfDocument = new IronPdf.HtmlToPdf();
                 var htmlContent = Utilites.GetHtmlContent(personnelViewModel);
-                var pdfBytes = converter.Convert(new HtmlToPdfDocument()
-                {
-                    Objects = { new ObjectSettings { HtmlContent = htmlContent } },
-                    GlobalSettings = {
-                    PaperSize = PaperKind.A5,
-                    Orientation = Orientation.Landscape
-                }
-                });
-
+                var pdfBytes = pdfDocument.RenderHtmlAsPdf(htmlContent).BinaryData;
                 return File(pdfBytes, "application/pdf", "Personnels.pdf");
             }
             catch (Exception ex)

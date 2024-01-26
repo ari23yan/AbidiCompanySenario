@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // or LicenseContext.Commercial
 
 // Add services to the container.
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+builder.Services.AddControllersWithViews();
 
 
 builder.Services.AddDbContext<ProjectDbContext>(
@@ -28,7 +28,6 @@ builder.Services.AddNotyf(config =>
     config.Position = NotyfPosition.BottomCenter;
     config.HasRippleEffect = true;
 });
-builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 builder.Services.AddScoped<IPersonnelRepository, PersonnelRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
